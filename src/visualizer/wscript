@@ -38,7 +38,7 @@ def configure(conf):
 def build(bld):
 
     module = bld.create_ns3_module('visualizer', ['internet', 'wifi', 'point-to-point'])
-    headers = bld.new_task_gen(features=['ns3header'])
+    headers = bld(features='ns3header')
     headers.module = 'visualizer'
 
     # Don't do anything more for this module if Python was explicitly

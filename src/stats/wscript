@@ -26,7 +26,7 @@ def build(bld):
         'test/basic-data-calculators-test-suite.cc',
         ]
 
-    headers = bld.new_task_gen(features=['ns3header'])
+    headers = bld(features='ns3header')
     headers.module = 'stats'
     headers.source = [
         'model/data-calculator.h',

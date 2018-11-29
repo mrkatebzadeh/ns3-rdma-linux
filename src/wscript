@@ -76,10 +76,19 @@ def create_ns3_module(bld, name, dependencies=(), test=False):
     # Create a separate library for this module.
     if static:
         module = bld.new_task_gen(features=['cxx', 'cxxstlib', 'ns3module'])
+    static = bool(bld.env.ENABLE_STATIC_NS3)
+    # Create a separate library for this module.
+    if static:
+        module = bld(features='cxx cxxstlib ns3module')
     else:
-        module = bld.new_task_gen(features=['cxx', 'cxxshlib', 'ns3module'])
-    module.target = '%s/ns%s-%s%s' % (bld.srcnode.relpath_gen(module.path), wutils.VERSION,
+        module = bld(features='cxx cxxshlib ns3module')
+    module.target = '%s/ns%s-%s%s' % (bld.srcnode.path_from(module.path), wutils.VERSION,
                                        name, bld.env.BUILD_SUFFIX)
+
+#    else:
+#        module = bld.new_task_gen(features=['cxx', 'cxxshlib', 'ns3module'])
+#    module.target = '%s/ns%s-%s%s' % (bld.srcnode.relpath_gen(module.path), wutils.VERSION,
+#                                       name, bld.env.BUILD_SUFFIX)
     linkflags = []
     cxxflags = []
     ccflags = []
@@ -119,7 +128,7 @@ def create_ns3_module(bld, name, dependencies=(), test=False):
     module.use = ['ns3-' + dep for dep in dependencies]
     module.test = test
     module.is_ns3_module = True
-    module.ns3_dir_location = bld.path.relpath_gen(bld.srcnode)
+    module.ns3_dir_location = bld.path.path_from(bld.srcnode)
 
     module.env.append_value("INCLUDES", '#')
 
@@ -142,7 +151,7 @@ def create_ns3_module_test_library(bld, name):
     # the module being tested.
     library_name = name + "-test"
     library = bld.create_ns3_module(library_name, [name], test=True)
-    library.features.append("ns3testlib")
+    library.features += " ns3testlib"
 
     # Modify attributes for the test library that are different from a
     # normal module.
@@ -154,7 +163,7 @@ def create_ns3_module_test_library(bld, name):
     bld.env.append_value('NS3_MODULES_WITH_TEST_LIBRARIES', [(library.module_name, library.name)])
 
     # Set the include path from the build directory to modules. 
-    relative_path_from_build_to_here = bld.path.relpath_gen(bld.bldnode)
+    relative_path_from_build_to_here = bld.path.path_from(bld.bldnode)
     include_flag = '-I' + relative_path_from_build_to_here
     library.env.append_value('CXXFLAGS', include_flag)
     library.env.append_value('CCFLAGS',  include_flag)
@@ -305,11 +314,36 @@ def build(bld):
         if not_built in all_modules:
             all_modules.remove(not_built)
 
-    bld.add_subdirs(list(all_modules))
+    bld.create_ns3_module = types.MethodType(create_ns3_module, bld)
+    bld.create_ns3_module_test_library = types.MethodType(create_ns3_module_test_library, bld)
+    bld.create_obj = types.MethodType(create_obj, bld)
+    bld.ns3_python_bindings = types.MethodType(ns3_python_bindings, bld)
+    
+    # Remove these modules from the list of all modules.
+    for not_built in bld.env['MODULES_NOT_BUILT']:
+
+        # XXX Becaue these modules are located in subdirectories of
+        # test, their names in the all_modules list include the extra
+        # relative path "test/".  If these modules are moved into the
+        # src directory, then this if block should be removed.
+        if not_built == 'ns3tcp' or not_built == 'ns3wifi':
+            not_built = 'test/' + not_built
+
+        if not_built in all_modules:
+            all_modules.remove(not_built)
+
+    bld.recurse(list(all_modules))
 
     for module in all_modules:
-        modheader = bld.new_task_gen(features=['ns3moduleheader'])
+        modheader = bld(features='ns3moduleheader')
         modheader.module = module.split('/')[-1]
+
+
+#    bld.add_subdirs(list(all_modules))
+
+#    for module in all_modules:
+#        modheader = bld.new_task_gen(features=['ns3moduleheader'])
+#        modheader.module = module.split('/')[-1]
 
 class ns3pcfile_task(Task.Task):
     after = 'cc cxx'

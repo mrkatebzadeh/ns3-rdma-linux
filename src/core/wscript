@@ -171,7 +171,7 @@ def build(bld):
         'test/watchdog-test-suite.cc',
         ]
 
-    headers = bld.new_task_gen(features=['ns3header'])
+    headers = bld(features='ns3header')
     headers.module = 'core'
     headers.source = [
         'model/nstime.h',
@@ -306,7 +306,7 @@ def build(bld):
         core_test.source.extend(['test/rng-test-suite.cc'])
 
     if (bld.env['ENABLE_EXAMPLES']):
-        bld.add_subdirs('examples')
+        bld.recurse('examples')
 
     pymod = bld.ns3_python_bindings()
     if pymod is not None:

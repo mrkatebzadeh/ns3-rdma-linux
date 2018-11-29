@@ -158,7 +158,7 @@ def build(bld):
 	obj.use.extend('OPENFLOW DL XML2'.split())
 	obj_test.use.extend('OPENFLOW DL XML2'.split())
 
-    headers = bld.new_task_gen(features=['ns3header'])
+    headers = bld(features='ns3header')
     headers.module = 'openflow'
     headers.source = [
         ]
@@ -177,4 +177,4 @@ def build(bld):
 	headers.source.append('helper/openflow-switch-helper.h')
 
     if bld.env['ENABLE_EXAMPLES'] and bld.env['ENABLE_OPENFLOW']:
-        bld.add_subdirs('examples')
+        bld.recurse('examples')
