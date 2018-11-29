@@ -100,6 +100,10 @@ def build(bld):
 
     core = bld.create_ns3_module('core')
     core.source = [
+        'model/hash.cc',
+        'model/hash-fnv.cc',
+        'model/hash-murmur3.cc',
+        'model/hash-function.cc',
         'model/time.cc',
         'model/event-id.cc',
         'model/scheduler.cc',
@@ -244,6 +248,10 @@ def build(bld):
         'model/fatal-impl.h',
         'model/system-path.h',
         'model/unused.h',
+        'model/hash.h',
+        'model/hash-fnv.h',
+        'model/hash-murmur3.h',
+        'model/hash-function.h',
         ]
 
     if sys.platform == 'win32':
