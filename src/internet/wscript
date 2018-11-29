@@ -2,10 +2,10 @@
 import os
 import sys
 
-import Options
-import Logs
-import Utils
-import Task
+from waflib import Options
+from waflib import Logs
+from waflib import Utils
+from waflib import Task
 
 # Required NSC version
 NSC_RELEASE_NAME = "nsc-0.5.3"

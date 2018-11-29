@@ -8,11 +8,11 @@ import warnings
 
 from waflib.Errors import WafError
 
-import TaskGen
-import Task
-import Options
-import Build
-import Utils
+from waflib import TaskGen
+from waflib import Task
+from waflib import Options
+from waflib import Build
+from waflib import Utils
 
 import wutils
 
@@ -48,12 +48,12 @@ def options(opt):
                    dest='enable_modules')
 
     for module in all_modules:
-        opt.sub_options(module, mandatory=False)
+        opt.recurse(module, mandatory=False)
 
 
 def configure(conf):
     for module in all_modules:
-        conf.sub_config(module, mandatory=False)
+        conf.recurse(module, mandatory=False)
 
     blddir = os.path.abspath(os.path.join(conf.bldnode.abspath(), conf.variant))
     conf.env.append_value('NS3_MODULE_PATH', blddir)

@@ -16,13 +16,19 @@ def configure(conf):
                                      conf.env['ENABLE_GTK_CONFIG_STORE'],
                                      "--disable-gtk option given")
     else:
-        have_gtk = conf.pkg_check_modules('GTK_CONFIG_STORE', 'gtk+-2.0 >= 2.12', mandatory=False)
+        have_gtk = conf.check_cfg(package='gtk+-2.0', atleast_version='2.12', 
+                                   args=['--cflags', '--libs'], uselib_store='GTK2',
+                                   mandatory=False)
+
         conf.env['ENABLE_GTK_CONFIG_STORE'] = have_gtk
         conf.report_optional_feature("GtkConfigStore", "GtkConfigStore",
                                      conf.env['ENABLE_GTK_CONFIG_STORE'],
                                      "library 'gtk+-2.0 >= 2.12' not found")
 
-    have_libxml2 = conf.pkg_check_modules('LIBXML2', 'libxml-2.0 >= 2.6', mandatory=False)
+    have_libxml2 = conf.check_cfg(package='libxml-2.0', atleast_version='2.7',
+                                  args=['--cflags', '--libs'], uselib_store='LIBXML2',
+                                  mandatory=False)
+
     if have_libxml2:
         conf.define('HAVE_LIBXML2', 1)
 
